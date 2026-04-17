@@ -1,0 +1,32 @@
+alphabet_consonant = "аеёиоуыэюя"
+alphabet_vowel = "бвгджзйклмнпрстфхцчшщ"
+the_longest_string = ""
+vowel_count = 0
+consonant_count = 0
+lines = 0
+words = 0
+try:
+    with open("text.txt", encoding = "utf8") as fText:
+        for line in fText:
+            lines += 1
+            words += len(line.split())
+            if len(line) > len(the_longest_string):
+                the_longest_string = line
+            for char in line.lower():
+                if char in alphabet_consonant:
+                    consonant_count += 1
+                elif char in alphabet_vowel:
+                    vowel_count += 1
+        print("В тексте:", lines, "строк.")
+        print("В тексте:", words, "слов.")
+        print("Самая длинная строка в тексте:", the_longest_string)
+        print("В тексте:", vowel_count, "гласных букв.")
+        print("В тексте:", consonant_count, "согласных букв.")
+        fText.close()
+except FileNotFoundError:
+    fText = open("text.txt", 'w', encoding="utf8")
+    fText.write("первая строка\nвторая строкa\nтретья строка\n4-ая строка\nпятая строка")
+    fText.close()
+    print("Был создан файл ", '"text.txt!!!"', " Пожалуйста перезапустите программу.")
+except UnicodeDecodeError:
+    print("Неудалось прочитать файл в кодировку UTF-8!")
