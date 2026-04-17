@@ -1,0 +1,52 @@
+import struct
+import os
+
+filename = input("Введите путь к файлу: ")
+temp = []
+active_flag = 0
+
+if not os.path.exists(filename):
+    print(f"Ошибка: Файл '{filename}' не найден.")
+    exit(1)
+
+try:
+    with open(filename, 'rb') as f:
+        header_data = f.read(10)
+        if len(header_data) < 10:
+            print("Ошибка: Недостаточно данных для заголовка.")
+            exit(1)
+
+        sig, ver, count = struct.unpack('<4sHI', header_data)
+
+        if sig != b'DATA':
+            print("Ошибка: Неверная сигнатура файла!")
+            exit(1)
+
+        form = '<QIhB'
+        size = struct.calcsize(form)
+
+        for i in range(count):
+            chunk = f.read(size)
+            if len(chunk) < size:
+                print(f"Предупреждение: Файл прерван на записи №{i + 1}")
+                break
+
+            timestamp, obj_id, temp_raw, flags = struct.unpack(form, chunk)
+
+            real_temp = temp_raw / 100.0
+            temp.append(real_temp)
+
+            active_bits = bin(flags).count('1')
+            active_flag += active_bits
+
+    if temp:
+        avg_temp = sum(temp) / len(temp)
+        print(f"\n--- Статистика ({len(temp)} записей) ---")
+        print(f"Средняя температура: {avg_temp:.2f} °C")
+        print(f"Всего активных флагов: {active_flag}")
+    else:
+        print("Записи не найдены.")
+
+
+except struct.error:
+    print("Ошибка: Файл имеет неверную структуру байтов.")
